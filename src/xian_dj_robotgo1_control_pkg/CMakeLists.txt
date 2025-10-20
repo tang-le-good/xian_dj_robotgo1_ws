@@ -70,7 +70,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   std_msgs
 # )
 
 ################################################
@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES xian_dj_robotgo1_control_pkg
-#  CATKIN_DEPENDS roscpp rospy std_msg
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -204,3 +204,23 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(xian_dj_robotgo1_local_controller src/xian_dj_robotgo1_local_controller.cpp )
+add_dependencies(xian_dj_robotgo1_local_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_local_controller ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_switch_mode src/xian_dj_robotgo1_switch_mode.cpp )
+add_dependencies(xian_dj_robotgo1_switch_mode ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_switch_mode ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_state_display src/xian_dj_robotgo1_state_display.cpp )
+add_dependencies(xian_dj_robotgo1_state_display ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_state_display ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_error_monitor src/xian_dj_robotgo1_error_monitor.cpp )
+add_dependencies(xian_dj_robotgo1_error_monitor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_error_monitor ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_control src/xian_dj_robotgo1_control.cpp )
+add_dependencies(xian_dj_robotgo1_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_control ${catkin_LIBRARIES})

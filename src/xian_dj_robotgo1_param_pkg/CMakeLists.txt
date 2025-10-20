@@ -13,8 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   dynamic_reconfigure
 )
-generate_dynamic_reconfigure_options(cfg/xian_dj_robotgo1_params.cfg)
-
+generate_dynamic_reconfigure_options(
+cfg/xian_dj_robotgo1_params.cfg
+)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -216,5 +217,3 @@ target_link_libraries(xian_dj_robotgo1_params_server
 ${catkin_LIBRARIES}
 )
 add_dependencies(xian_dj_robotgo1_params_server ${PROJECT_NAME}_gencfg)
-
-
