@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <node name ="xian_dj_tele_op_params_server" pkg="xian_dj_remote_operation_param_pkg" type="xian_dj_tele_op_params_server" />
+    <!-- <node name ="xian_communicate_with_am401_plc" pkg="xian_magnet_car_control_pkg" type="xian_communicate_with_am401_plc"/> -->
+</launch>
