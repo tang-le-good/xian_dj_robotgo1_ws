@@ -224,3 +224,7 @@ target_link_libraries(xian_dj_robotgo1_error_monitor ${catkin_LIBRARIES})
 add_executable(xian_dj_robotgo1_control src/xian_dj_robotgo1_control.cpp )
 add_dependencies(xian_dj_robotgo1_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(xian_dj_robotgo1_control ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_battery_level src/xian_dj_robotgo1_battery_level.cpp )
+add_dependencies(xian_dj_robotgo1_battery_level ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_battery_level ${catkin_LIBRARIES})

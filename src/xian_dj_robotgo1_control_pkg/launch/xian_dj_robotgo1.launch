@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <node name ="xian_dj_robotgo1_params_server" pkg="xian_dj_robotgo1_param_pkg" type="xian_dj_robotgo1_params_server" />
+    <!-- <node name ="xian_dj_robotgo1_battery_level" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_battery_level" /> -->
+</launch>
