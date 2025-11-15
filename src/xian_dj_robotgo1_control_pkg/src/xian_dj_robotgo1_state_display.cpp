@@ -3,6 +3,7 @@
 #include<sys/types.h>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 class XianDjRobotgo1StateDisplay
 {
@@ -10,7 +11,7 @@ class XianDjRobotgo1StateDisplay
         XianDjRobotgo1StateDisplay()
         {
             // 创建一个ROS节点句柄
-            ros::NodeHandle nh;
+            // ros::NodeHandle nh;
         }
 
         ros::WallTimer m_timer_heart_beat;
@@ -30,16 +31,20 @@ class XianDjRobotgo1StateDisplay
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_error_code", xian_dj_robotgo1_error_code); 
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_m_system_mode", xian_dj_robotgo1_m_system_mode); 
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_s_system_mode", xian_dj_robotgo1_s_system_mode); 
-
+            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level", xian_dj_robotgo1_battery_level); 
             light_timer_counter++;
             display_timer_counter++;
+
+            std::string format_battery_level = "$001,P" + xian_dj_robotgo1_battery_level + "#";
+            printf("xian_dj_robotgo1_display_mode: %d \n",xian_dj_robotgo1_display_mode);
             switch(xian_dj_robotgo1_display_mode)
             {
                 case 0:
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level + "%"); 
-
+                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0);
+                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0); 
+                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level); // std::string
+                    printf("xian_dj_robotgo1_battery_level: %s \n", format_battery_level.c_str());
                 case 1: //红灯间隔一秒闪烁，电量、报错间隔五秒交替闪烁
                     if(light_timer_counter > 50)
                     {
@@ -63,11 +68,13 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level+ "%");
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
                         }
                         else
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "E" + std::to_string(xian_dj_robotgo1_error_code) + "%");
+                            double error_code = xian_dj_robotgo1_error_code / 100;
+                            std::string format_error_code = doubleToFixedWidthString(error_code, 2, 2);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "E" + format_error_code);
                         }
                         display_state =!display_state;
                     }
@@ -95,11 +102,13 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level + "%");
+                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
                         }
                         else
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "A" + std::to_string(xian_dj_robotgo1_m_system_mode) + std::to_string(xian_dj_robotgo1_s_system_mode));
+                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
+                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "A" + format_m_mode + "." + format_s_mode);
                         }
                         display_state =!display_state;
                     }
@@ -127,11 +136,13 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level + "%");
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
                         }
                         else
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + std::to_string(xian_dj_robotgo1_m_system_mode) + std::to_string(xian_dj_robotgo1_s_system_mode));
+                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
+                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + format_m_mode + "." + format_s_mode);
                         }
                         display_state =!display_state;
                     }
@@ -159,11 +170,13 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level + "%");
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
                         }
                         else
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + std::to_string(xian_dj_robotgo1_m_system_mode) + std::to_string(xian_dj_robotgo1_s_system_mode));
+                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
+                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + format_m_mode + "." + format_s_mode);
                         }
                         display_state =!display_state;
                     }
@@ -174,6 +187,52 @@ class XianDjRobotgo1StateDisplay
                 case 6: 
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);
             }
+        }
+
+        std::string intToFixedWidthString(int num, int width) 
+        {
+            std::ostringstream oss;
+            oss << std::setw(width) << std::setfill('0') << num;
+            return oss.str();
+        }
+
+        std::string doubleToFixedWidthString(double value, int integerWidth, int decimalWidth) 
+        {
+            std::ostringstream oss;
+            
+            // 设置固定小数表示和精度
+            oss << std::fixed << std::setprecision(decimalWidth) << std::abs(value);
+            
+            std::string numberStr = oss.str();
+            
+            // 分离整数和小数部分
+            size_t dotPos = numberStr.find('.');
+            std::string intPart, decimalPart;
+            
+            if (dotPos != std::string::npos) {
+                intPart = numberStr.substr(0, dotPos);
+                decimalPart = numberStr.substr(dotPos + 1);
+            } else {
+                intPart = numberStr;
+                decimalPart = "";
+            }
+            
+            // 处理整数部分：用0填充到指定宽度
+            if (value < 0) {
+                intPart = std::string(integerWidth - intPart.length() - 1, '0') + intPart;
+                intPart = "-" + intPart;
+            } else {
+                intPart = std::string(integerWidth - intPart.length(), '0') + intPart;
+            }
+            
+            // 处理小数部分：用0填充到指定宽度
+            if (decimalPart.length() < decimalWidth) {
+                decimalPart += std::string(decimalWidth - decimalPart.length(), '0');
+            } else if (decimalPart.length() > decimalWidth) {
+                decimalPart = decimalPart.substr(0, decimalWidth);
+            }
+            
+            return intPart + "." + decimalPart;
         }
 
     private:
@@ -194,7 +253,7 @@ class XianDjRobotgo1StateDisplay
         int xian_dj_robotgo1_green_ligher_cmd = 0;
         int xian_dj_robotgo1_yellow_ligher_cmd = 0;
         std::string xian_dj_robotgo1_displayer_cmd = "OFF";
-        std::string xian_dj_robotgo1_battery_level = "OFF";
+        std::string xian_dj_robotgo1_battery_level = "0044";
 
 };
 

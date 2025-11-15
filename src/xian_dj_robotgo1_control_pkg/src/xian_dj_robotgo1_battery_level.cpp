@@ -130,16 +130,38 @@ class TCPClient
         bool receiveData(server2client& server_data) 
         {
             
+            // 设置文件描述符集合
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(sockfd, &readfds);
+            
+            // 设置3秒超时
+            struct timeval timeout;
+            timeout.tv_sec = 3;
+            timeout.tv_usec = 0;
+            
+            // 等待socket可读
+            int select_result = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
+            
+            if (select_result == 0) {
+                std::cerr << "接收数据超时（3秒）" << std::endl;
+                // connected = false;
+                return false;
+            } else if (select_result < 0) {
+                std::cerr << "select错误: " << strerror(errno) << std::endl;
+                // connected = false;
+                return false;
+            }
+            
+            // 有数据可读，正常接收
             int recv_len = recv(sockfd, &server_data, sizeof(server_data), 0);
             
-            if (recv_len <= 0) 
-            {
+            if (recv_len <= 0) {
                 std::cerr << "接收数据失败或连接已关闭" << std::endl;
                 connected = false;
                 return false;
             }
             
-            // response.assign(server_data, recv_len);
             return true;
         }
         
@@ -162,10 +184,34 @@ class XianDjRobotgo1BatteryLevel
 
         void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
         {
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", xian_dj_robotgo1_battery_level_heart_beat); 
-            std::cout << "xian_dj_robotgo1_battery_level_heart_beat: " << xian_dj_robotgo1_battery_level_heart_beat << std::endl;
-            counter = counter > 1000 ? 0 : (counter + 1);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", counter);  // 自行替换
+            date_recive_counter_pre = date_recive_counter_cur;
+            date_recive_counter_cur = date_recive_counter;
+
+            if(date_recive_counter_pre == date_recive_counter_cur)
+            {
+                timeout_counter += 1;
+                timeout_counter = timeout_counter > 1000 ? 5 : (timeout_counter + 1);
+            }
+            else
+            {
+                timeout_counter = 0;
+            }
+            if(timeout_counter >= 5)
+            {
+                ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", xian_dj_robotgo1_battery_level_heart_beat); 
+                std::cout << "xian_dj_robotgo1_battery_level_heart_beat: " << xian_dj_robotgo1_battery_level_heart_beat << std::endl;
+                counter = 0;
+                ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", counter);  // 自行替换
+            }
+            else
+            {
+                ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", xian_dj_robotgo1_battery_level_heart_beat); 
+                std::cout << "xian_dj_robotgo1_battery_level_heart_beat: " << xian_dj_robotgo1_battery_level_heart_beat << std::endl;
+                counter = counter > 1000 ? 0 : (counter + 1);
+                ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level_heart_beat", counter);  // 自行替换
+            }
+
+            
         }
 
         void m_timer_control_func(const ros::WallTimerEvent& event)
@@ -185,11 +231,14 @@ class XianDjRobotgo1BatteryLevel
             //                                          client_address_6, client_address_7);
             tcp_server_date = this->command_callback(client_address_0, client_address_1,client_address_2,
                                                      client_address_3, client_address_4,client_address_5);
-            unsigned char battery_level = *(tcp_server_date+4);
-            // printf("电池电量： %u  \n",battery_level);
-            xian_dj_robotgo1_battery_level = std::to_string(battery_level);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level", battery_level);
-            std::cout << "xian_dj_robotgo1_battery_level: " << xian_dj_robotgo1_battery_level << std::endl; 
+            if(tcp_server_date!=nullptr)
+            {
+                unsigned char battery_level = *(tcp_server_date+4);
+                // printf("电池电量： %u  \n",battery_level);
+                xian_dj_robotgo1_battery_level = std::to_string(battery_level);
+                ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level", battery_level);
+                std::cout << "xian_dj_robotgo1_battery_level: " << xian_dj_robotgo1_battery_level << std::endl; 
+            }
             
         }
 
@@ -198,6 +247,10 @@ class XianDjRobotgo1BatteryLevel
         int counter = 0;
         int xian_dj_robotgo1_battery_level_heart_beat = 0;
         std::string xian_dj_robotgo1_battery_level;
+        int date_recive_counter = 0;
+        int date_recive_counter_cur = 0;
+        int date_recive_counter_pre = 0;
+        int timeout_counter = 0;
 
         unsigned char client_address_0;
         unsigned char client_address_1;
@@ -262,33 +315,63 @@ class XianDjRobotgo1BatteryLevel
                 return 0x00;
             }
             
-            // 接收响应
+            // // 接收响应
+            // if (client.receiveData(server_data)) 
+            // {
+            //     date_recive_counter = date_recive_counter > 1000 ? 0 : (date_recive_counter + 1);
+            //     printf("Recived from server:  address_0=%X, address_1=%X, address_2=%X, address_3=%X, address_4=%X, address_5=%X, address_6=%X \n", 
+            //             server_data.address_0,
+            //             server_data.address_1,
+            //             server_data.address_2,
+            //             server_data.address_3,
+            //             server_data.address_4,
+            //             server_data.address_5,
+            //             server_data.address_6
+            //             );
+            // }
+            // else
+            // {
+            //     printf("ERROR!!!");
+            //     return 0x00;
+            // }
+            // tcp_date[0] = server_data.address_0;
+            // tcp_date[1] = server_data.address_1;
+            // tcp_date[2] = server_data.address_2;
+            // tcp_date[3] = server_data.address_3;
+            // tcp_date[4] = server_data.address_4;
+            // tcp_date[5] = server_data.address_5;
+            // tcp_date[6] = server_data.address_6;
+        
+            // return tcp_date;
+
+
+            // 接收响应（带3秒超时）
             if (client.receiveData(server_data)) 
             {
-                printf("Recived from server:  address_0=%X, address_1=%X, address_2=%X, address_3=%X, address_4=%X, address_5=%X, address_6=%X \n", 
-                        server_data.address_0,
-                        server_data.address_1,
-                        server_data.address_2,
-                        server_data.address_3,
-                        server_data.address_4,
-                        server_data.address_5,
-                        server_data.address_6
-                        );
-            }
-            else
+                date_recive_counter = date_recive_counter > 1000 ? 0 : (date_recive_counter + 1);
+                printf("date_recive_counter:%d \n", date_recive_counter);
+                
+                tcp_date[0] = server_data.address_0;
+                tcp_date[1] = server_data.address_1;
+                tcp_date[2] = server_data.address_2;
+                tcp_date[3] = server_data.address_3;
+                tcp_date[4] = server_data.address_4;
+                tcp_date[5] = server_data.address_5;
+                tcp_date[6] = server_data.address_6;
+                return tcp_date;
+            } 
+            else 
             {
-                printf("ERROR!!!");
-                return 0x00;
+                // 3秒超时后会执行到这里                
+                return nullptr;
             }
-            tcp_date[0] = server_data.address_0;
-            tcp_date[1] = server_data.address_1;
-            tcp_date[2] = server_data.address_2;
-            tcp_date[3] = server_data.address_3;
-            tcp_date[4] = server_data.address_4;
-            tcp_date[5] = server_data.address_5;
-            tcp_date[6] = server_data.address_6;
-        
-            return tcp_date;
+
+
+
+
+
+
+
         }
 
 
