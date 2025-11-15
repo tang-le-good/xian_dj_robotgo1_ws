@@ -35,7 +35,16 @@ class XianDjRobotgo1StateDisplay
             light_timer_counter++;
             display_timer_counter++;
 
+            // 电量格式化输出
             std::string format_battery_level = "$001,P" + xian_dj_robotgo1_battery_level + "#";
+
+            // 故障代码格式化输出
+            double error_code = xian_dj_robotgo1_error_code / 100;
+            std::string format_error_code = "$001,E" + doubleToFixedWidthString(error_code, 2, 2) + "#";
+
+            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
+            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
+
             printf("xian_dj_robotgo1_display_mode: %d \n",xian_dj_robotgo1_display_mode);
             switch(xian_dj_robotgo1_display_mode)
             {
@@ -44,9 +53,15 @@ class XianDjRobotgo1StateDisplay
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0);
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0); 
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level); // std::string
-                    printf("xian_dj_robotgo1_battery_level: %s \n", format_battery_level.c_str());
+                    // printf("xian_dj_robotgo1_battery_level: %s \n", format_battery_level.c_str());
+                    printf("case0 \n");
+                    break;
+                    
+                
                 case 1: //红灯间隔一秒闪烁，电量、报错间隔五秒交替闪烁
-                    if(light_timer_counter > 50)
+                    printf("case1 \n");
+                    
+                    if(light_timer_counter > 5)
                     {
                         light_timer_counter = 0;
                         if (lighter_state)
@@ -63,24 +78,24 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 249)
+                    if(display_timer_counter > 25)
                     {
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
                         }
                         else
                         {
-                            double error_code = xian_dj_robotgo1_error_code / 100;
-                            std::string format_error_code = doubleToFixedWidthString(error_code, 2, 2);
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "E" + format_error_code);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_error_code);
                         }
                         display_state =!display_state;
                     }
-                    
+                    break;
+                
                 case 2: //绿灯间隔一秒闪烁，电量、模式间隔五秒闪烁
-                    if(light_timer_counter > 50)
+                    printf("case2 \n");
+                    if(light_timer_counter > 5)
                     {
                         light_timer_counter = 0;
                         if (lighter_state)
@@ -97,24 +112,25 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 249)
+                    if(display_timer_counter > 25)
                     {
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
+                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
                         }
                         else
                         {
-                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
-                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "A" + format_m_mode + "." + format_s_mode);
+                            
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,A" + format_m_mode + "." + format_s_mode + "#");
                         }
                         display_state =!display_state;
                     }
+                    break;
                 
                 case 3: //黄灯间隔一秒闪烁，电量、模式间隔五秒闪烁
-                    if(light_timer_counter > 50)
+                    printf("case3 \n");
+                    if(light_timer_counter > 5)
                     {
                         light_timer_counter = 0;
                         if (lighter_state)
@@ -131,24 +147,24 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 249)
+                    if(display_timer_counter > 25)
                     {
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
                         }
                         else
                         {
-                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
-                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + format_m_mode + "." + format_s_mode);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
                         }
                         display_state =!display_state;
                     }
+                    break;
 
                 case 4: //绿灯常亮，电量、模式间隔五秒闪烁
-                    if(light_timer_counter > 50)
+                    printf("case4 \n");
+                    if(light_timer_counter > 5)
                     {
                         light_timer_counter = 0;
                         if (lighter_state)
@@ -165,27 +181,32 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 249)
+                    if(display_timer_counter > 25)
                     {
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "P" + xian_dj_robotgo1_battery_level);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
                         }
                         else
                         {
                             std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
                             std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "C" + format_m_mode + "." + format_s_mode);
+                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
                         }
                         display_state =!display_state;
                     }
+                    break;
 
                 case 5: 
+                    printf("case5 \n");
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 1);
+                    break;
 
                 case 6: 
+                    printf("case6 \n");
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);
+                    break;
             }
         }
 
@@ -269,7 +290,7 @@ int main(int argc, char** argv)
     spinner.start();
 
     xian_dj_robotgo1_state_display.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1StateDisplay::m_timer_heart_beat_func, &xian_dj_robotgo1_state_display);
-    xian_dj_robotgo1_state_display.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.02), &XianDjRobotgo1StateDisplay::m_timer_control_func, &xian_dj_robotgo1_state_display);
+    xian_dj_robotgo1_state_display.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.2), &XianDjRobotgo1StateDisplay::m_timer_control_func, &xian_dj_robotgo1_state_display);
     ros::waitForShutdown();
     
     // ros::spin();

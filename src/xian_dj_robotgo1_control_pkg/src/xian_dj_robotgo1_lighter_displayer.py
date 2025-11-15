@@ -353,9 +353,9 @@ if __name__ == '__main__':
         tt = XianDjRobotgo1LighterDisplayer()
         rospy.init_node('xian_dj_robotgo1_lighter_displayer', anonymous=True)  # 初始化ROS节点
         rospy.Timer(rospy.Duration(1), tt.xian_heat_beat_callback, oneshot=False) # 心跳线程
-        rospy.Timer(rospy.Duration(0.1), tt.xian_dj_tobotgo1_green_lighter_func, oneshot=False) # 绿灯线程
-        rospy.Timer(rospy.Duration(0.1), tt.xian_dj_tobotgo1_red_lighter_func, oneshot=False) # 红灯线程
-        rospy.Timer(rospy.Duration(0.1), tt.xian_dj_tobotgo1_yellow_lighter_func, oneshot=False) # 黄灯线程
+        rospy.Timer(rospy.Duration(0.5), tt.xian_dj_tobotgo1_green_lighter_func, oneshot=False) # 绿灯线程
+        rospy.Timer(rospy.Duration(0.5), tt.xian_dj_tobotgo1_red_lighter_func, oneshot=False) # 红灯线程
+        rospy.Timer(rospy.Duration(0.5), tt.xian_dj_tobotgo1_yellow_lighter_func, oneshot=False) # 黄灯线程
         rospy.Timer(rospy.Duration(0.5), tt.xian_dj_tobotgo1_displayer_func, oneshot=False) # 数显模块线程
         rospy.spin()  # 添加这行确保节点持续运行
 
