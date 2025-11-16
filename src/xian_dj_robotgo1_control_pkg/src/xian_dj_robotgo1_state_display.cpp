@@ -78,7 +78,7 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 25)
+                    if(display_timer_counter > 10)
                     {
                         display_timer_counter = 0;
                         if (display_state)
@@ -112,7 +112,7 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 25)
+                    if(display_timer_counter > 10)
                     {
                         display_timer_counter = 0;
                         if (display_state)
@@ -147,7 +147,7 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 25)
+                    if(display_timer_counter > 10)
                     {
                         display_timer_counter = 0;
                         if (display_state)
@@ -181,7 +181,7 @@ class XianDjRobotgo1StateDisplay
                         }
                         lighter_state =!lighter_state;
                     }
-                    if(display_timer_counter > 25)
+                    if(display_timer_counter > 10)
                     {
                         display_timer_counter = 0;
                         if (display_state)

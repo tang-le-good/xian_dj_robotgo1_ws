@@ -44,6 +44,23 @@ class XianDjRobotgo1LocalController
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_l1_cmd", xian_dj_local_controller_l1_cmd);
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_l2_cmd", xian_dj_local_controller_l2_cmd);
 
+            // printf("xian_dj_local_controller_left_cmd: %d \n", xian_dj_local_controller_left_cmd);
+            // printf("xian_dj_local_controller_right_cmd: %d \n", xian_dj_local_controller_right_cmd);
+            // printf("xian_dj_local_controller_up_cmd: %d \n", xian_dj_local_controller_up_cmd);
+            // printf("xian_dj_local_controller_down_cmd: %d \n", xian_dj_local_controller_down_cmd);
+            // printf("xian_dj_local_controller_x_cmd: %d \n", xian_dj_local_controller_x_cmd);
+            // printf("xian_dj_local_controller_b_cmd: %d \n", xian_dj_local_controller_b_cmd);
+            // printf("xian_dj_local_controller_y_cmd: %d \n", xian_dj_local_controller_y_cmd);
+            // printf("xian_dj_local_controller_a_cmd: %d \n", xian_dj_local_controller_a_cmd);
+            // printf("xian_dj_local_controller_left_rocker_x_cmd: %f \n", xian_dj_local_controller_left_rocker_x_cmd);
+            // printf("xian_dj_local_controller_left_rocker_y_cmd: %f \n", xian_dj_local_controller_left_rocker_y_cmd);
+            // printf("xian_dj_local_controller_right_rocker_x_cmd: %f \n", xian_dj_local_controller_right_rocker_x_cmd);
+            // printf("xian_dj_local_controller_right_rocker_y_cmd: %f \n", xian_dj_local_controller_right_rocker_y_cmd);
+            // printf("xian_dj_local_controller_r1_cmd: %d \n", xian_dj_local_controller_r1_cmd);
+            // printf("xian_dj_local_controller_r2_cmd: %d \n", xian_dj_local_controller_r2_cmd);
+            // printf("xian_dj_local_controller_l1_cmd: %d \n", xian_dj_local_controller_l1_cmd);
+            // printf("xian_dj_local_controller_l2_cmd: %d \n", xian_dj_local_controller_l2_cmd);
+
         }
         void controller_callback(const sensor_msgs::Joy::ConstPtr &Joy)
         {

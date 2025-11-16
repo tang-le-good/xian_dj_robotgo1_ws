@@ -8,7 +8,7 @@ class XianDjRobotgo1Control
         XianDjRobotgo1Control()
         {
             // 创建一个ROS节点句柄
-            ros::NodeHandle nh;
+            // ros::NodeHandle nh;
         }
 
         ros::WallTimer m_timer_heart_beat;
@@ -27,6 +27,16 @@ class XianDjRobotgo1Control
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_error_code", xian_dj_robotgo1_error_code); 
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_tele_op_mode", xian_dj_robotgo1_tele_op_mode);
             ros::param::get("/xian_dj_tele_op_params_server/xian_dj_tele_op_controller_client_error", xian_dj_tele_op_controller_client_error);
+
+            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_auto_mode", xian_dj_robotgo1_auto_mode); 
+            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_tele_op_mode", xian_dj_robotgo1_tele_op_mode); 
+            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_m_system_mode", xian_dj_robotgo1_m_system_mode); 
+            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_s_system_mode", xian_dj_robotgo1_s_system_mode);
+            std::cout << "xian_dj_robotgo1_tele_op_mode: " << xian_dj_robotgo1_tele_op_mode << std::endl;
+            std::cout << "xian_dj_robotgo1_auto_mode: " << xian_dj_robotgo1_auto_mode << std::endl;
+            std::cout << "xian_dj_robotgo1_m_system_mode: " << xian_dj_robotgo1_m_system_mode << std::endl;
+            std::cout << "xian_dj_robotgo1_s_system_mode: " << xian_dj_robotgo1_s_system_mode << std::endl;
+
             if (xian_dj_robotgo1_error_code != 0)
             {
                 ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 1); 
@@ -34,7 +44,7 @@ class XianDjRobotgo1Control
             }
             else
             {
-                if (xian_dj_tele_op_controller_client_error == 0)
+                if (xian_dj_tele_op_controller_client_error == 0) //0表示远程控制在线
                 {
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 6); 
                 }
@@ -43,43 +53,46 @@ class XianDjRobotgo1Control
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 5); 
                 }
                 ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 0); 
-                ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_auto_mode", xian_dj_robotgo1_auto_mode);
-                if (xian_dj_robotgo1_auto_mode !=0 )
+                // ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_auto_mode", xian_dj_robotgo1_auto_mode);
+                if (xian_dj_robotgo1_auto_mode !=0 ) //自动模式
                 {
                     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 2); 
+                    return;
                 }
                 else
                 {
-                    ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_m_system_mode", xian_dj_robotgo1_m_system_mode); 
-                    ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_s_system_mode", xian_dj_robotgo1_s_system_mode);
-                    if (xian_dj_robotgo1_m_system_mode == 0)
-                    {
-                        std::cout << "挂空，模式切换按钮作用，其余操作无效"  << std::endl;
-                    }
+                    // ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_m_system_mode", xian_dj_robotgo1_m_system_mode); 
+                    // ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_s_system_mode", xian_dj_robotgo1_s_system_mode);
+                    // if (xian_dj_robotgo1_m_system_mode == 0)
+                    // {
+                    //     std::cout << "挂空，模式切换按钮作用，其余操作无效"  << std::endl;
+                    //     return;
+                    // }
                     
-                    if (xian_dj_robotgo1_m_system_mode == 1) //控制车子运动
+                    if (xian_dj_robotgo1_m_system_mode == 0) //控制车子运动
                     {
-                        if (xian_dj_robotgo1_tele_op_mode ==0)
+                        if (xian_dj_robotgo1_tele_op_mode ==0) //本地模式
                         {
                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 4); 
                             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_local_controller_left_rocker_y_cmd", xian_dj_local_controller_left_rocker_y_cmd);
                             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_local_controller_right_rocker_x_cmd", xian_dj_local_controller_right_rocker_x_cmd);
-                            ros::param::set("/xian_dj_car_chassis_params_server/input_velocity_cmd", xian_dj_local_controller_left_rocker_y_cmd);
-                            ros::param::set("/xian_dj_car_chassis_params_server/input_theta_cmd", xian_dj_local_controller_right_rocker_x_cmd);
+                            ros::param::set("/xian_dj_car_chassis_params_server/input_velocity_cmd", xian_dj_local_controller_left_rocker_y_cmd * 1000);
+                            ros::param::set("/xian_dj_car_chassis_params_server/input_theta_cmd", xian_dj_local_controller_right_rocker_x_cmd * 1000);
                         }
                         else
                         {
                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 3); 
                             ros::param::get("/xian_dj_tele_op_params_server/xian_dj_tele_op_left_rocker_y_server_cmd", xian_dj_tele_op_left_rocker_y_server_cmd);
                             ros::param::get("/xian_dj_tele_op_params_server/xian_dj_tele_op_right_rocker_x_server_cmd", xian_dj_tele_op_right_rocker_x_server_cmd);
-                            ros::param::set("/xian_dj_car_chassis_params_server/input_velocity_cmd", xian_dj_tele_op_left_rocker_y_server_cmd);
-                            ros::param::set("/xian_dj_car_chassis_params_server/input_theta_cmd", xian_dj_tele_op_right_rocker_x_server_cmd);
+                            ros::param::set("/xian_dj_car_chassis_params_server/input_velocity_cmd", xian_dj_tele_op_left_rocker_y_server_cmd * 1000);
+                            ros::param::set("/xian_dj_car_chassis_params_server/input_theta_cmd", xian_dj_tele_op_right_rocker_x_server_cmd * 1000);
                         }
+                        return;
                     }
 
-                    if (xian_dj_robotgo1_m_system_mode == 2) //控制伸缩机构
+                    if (xian_dj_robotgo1_m_system_mode == 1) //控制伸缩机构
                     {
-                        if (xian_dj_robotgo1_tele_op_mode ==0)
+                        if (xian_dj_robotgo1_tele_op_mode ==0) //本地模式
                         {
                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 4); 
 
@@ -115,13 +128,14 @@ class XianDjRobotgo1Control
                             ros::param::set("/xian_dj_retractable_platform_params_server/xian_dj_retractable_platform_second_linear_actuator_up_cmd", xian_dj_tele_op_y_server_cmd);
                             ros::param::set("/xian_dj_retractable_platform_params_server/xian_dj_retractable_platform_second_linear_actuator_down_cmd", xian_dj_tele_op_a_server_cmd);
                         }
+                        return;
                     }
                     
-                    if (xian_dj_robotgo1_m_system_mode == 3) //控制六自由度平台
+                    if (xian_dj_robotgo1_m_system_mode == 2) //控制六自由度平台
                     {
                         if(xian_dj_robotgo1_s_system_mode == 0)//控制六自由度平台平移
                         {
-                            if (xian_dj_robotgo1_tele_op_mode ==0)
+                            if (xian_dj_robotgo1_tele_op_mode ==0)//本地模式
                             {
                                 ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 4); 
 
@@ -139,7 +153,7 @@ class XianDjRobotgo1Control
                                 ros::param::set("/xian_dj_stewart_platform_params_server/xian_dj_stewart_platform_input_z_positive_cmd", xian_dj_local_controller_y_cmd);
                                 ros::param::set("/xian_dj_stewart_platform_params_server/xian_dj_stewart_platform_input_z_negative_cmd", xian_dj_local_controller_a_cmd);
                             }
-                            else
+                            else 
                             {
                                 ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 3); 
 
@@ -160,7 +174,7 @@ class XianDjRobotgo1Control
                         }
                         if(xian_dj_robotgo1_s_system_mode == 1)//控制六自由度平台旋转
                         {
-                            if (xian_dj_robotgo1_tele_op_mode ==0)
+                            if (xian_dj_robotgo1_tele_op_mode ==0) //本地模式
                             {
                                 ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", 4); 
 
@@ -197,6 +211,7 @@ class XianDjRobotgo1Control
                                 ros::param::set("/xian_dj_stewart_platform_params_server/xian_dj_stewart_platform_input_gamma_negative_cmd", xian_dj_tele_op_x_server_cmd);
                             }
                         }
+                        return;
                     }
                 }
             }
@@ -215,6 +230,7 @@ class XianDjRobotgo1Control
         int xian_dj_robotgo1_error_code = 0;
         int xian_dj_robotgo1_tele_op_mode = 0;
         int xian_dj_tele_op_controller_client_error = 0;
+
         // 本地遥控器按键变量
         double xian_dj_local_controller_left_rocker_y_cmd = 0;
         double xian_dj_local_controller_right_rocker_x_cmd = 0;
