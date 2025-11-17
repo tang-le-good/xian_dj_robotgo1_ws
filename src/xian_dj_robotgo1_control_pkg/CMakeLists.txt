@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  message_generation
+  message_runtime
 )
 
 ## System dependencies are found with CMake's conventions
@@ -47,11 +49,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  xian_dj_robotgo1_back_end.msg
+  
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -68,10 +70,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -228,3 +230,7 @@ target_link_libraries(xian_dj_robotgo1_control ${catkin_LIBRARIES})
 add_executable(xian_dj_robotgo1_battery_level src/xian_dj_robotgo1_battery_level.cpp )
 add_dependencies(xian_dj_robotgo1_battery_level ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(xian_dj_robotgo1_battery_level ${catkin_LIBRARIES})
+
+add_executable(xian_dj_robotgo1_back_end src/xian_dj_robotgo1_back_end.cpp )
+add_dependencies(xian_dj_robotgo1_back_end ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(xian_dj_robotgo1_back_end ${catkin_LIBRARIES})

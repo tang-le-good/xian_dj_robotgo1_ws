@@ -227,8 +227,8 @@ class XianDjRobotgo1ErrorMonitor
             }
 
             error_sum = xian_dj_robotgo1_params_server_error + xian_dj_robotgo1_state_display_error + xian_dj_robotgo1_switch_mode_error + xian_dj_robotgo1_back_end_error + xian_dj_robotgo1_control_error + xian_dj_robotgo1_lighter_displayer_error ;
-            xian_dj_robotgo1_error_monitor_heart_beat = error_sum + 600;
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_error_monitor_heart_beat", xian_dj_robotgo1_error_monitor_heart_beat);
+            xian_dj_robotgo1_heat_beat_error_code = error_sum + 600;
+            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_heat_beat_error_code", xian_dj_robotgo1_heat_beat_error_code);
 
         }
 

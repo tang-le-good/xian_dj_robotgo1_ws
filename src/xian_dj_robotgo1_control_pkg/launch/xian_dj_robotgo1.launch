@@ -2,21 +2,24 @@
 <launch>
     <node name ="xian_dj_robotgo1_params_server" pkg="xian_dj_robotgo1_param_pkg" type="xian_dj_robotgo1_params_server" />
     <!-- <node name ="xian_dj_robotgo1_battery_level" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_battery_level" /> -->
-    <node name ="xian_dj_robotgo1_lighter_displayer" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_lighter_displayer.py" />
-    <node name ="xian_dj_robotgo1_state_display" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_state_display" />
+    <!-- <node name ="xian_dj_robotgo1_lighter_displayer" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_lighter_displayer.py" /> -->
+    <!-- <node name ="xian_dj_robotgo1_state_display" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_state_display" />
     <node name ="joy_node" pkg="joy" type="joy_node" />
     <node name ="xian_dj_robotgo1_local_controller" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_local_controller" />
     <node name ="xian_dj_robotgo1_switch_mode" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_switch_mode" />
     <node name ="xian_dj_robotgo1_control" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_control" />
+    <node name ="xian_dj_robotgo1_back_end" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_back_end" /> -->
 
 
     <!-- 启动车辆底盘launch文件 -->
     <include file="$(find xian_dj_car_chassis_control_pkg)/launch/xian_dj_car_chassis.launch" />
 
     <!-- 启动伸缩机构launch文件 -->
-    <include file="$(find xian_dj_retractable_platform_control_pkg)/launch/xian_dj_retractable_platform.launch" />
+    <!-- <include file="$(find xian_dj_retractable_platform_control_pkg)/launch/xian_dj_retractable_platform.launch" /> -->
 
     <!-- 启动远程遥控launch文件 -->
     <include file="$(find xian_dj_remote_operation_control_pkg)/launch/xian_dj_remote_operation.launch" />
 
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+    </include>
 </launch>
