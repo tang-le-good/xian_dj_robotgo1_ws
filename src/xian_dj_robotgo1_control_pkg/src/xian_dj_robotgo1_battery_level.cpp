@@ -464,7 +464,7 @@ int main(int argc, char** argv)
     spinner.start();
 
     xian_dj_robotgo1_battery_level.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1BatteryLevel::m_timer_heart_beat_func, &xian_dj_robotgo1_battery_level);
-    xian_dj_robotgo1_battery_level.m_timer_control = nh_2.createWallTimer(ros::WallDuration(2), &XianDjRobotgo1BatteryLevel::m_timer_control_func, &xian_dj_robotgo1_battery_level);
+    xian_dj_robotgo1_battery_level.m_timer_control = nh_2.createWallTimer(ros::WallDuration(1), &XianDjRobotgo1BatteryLevel::m_timer_control_func, &xian_dj_robotgo1_battery_level);
     ros::waitForShutdown();
     
     // ros::spin();

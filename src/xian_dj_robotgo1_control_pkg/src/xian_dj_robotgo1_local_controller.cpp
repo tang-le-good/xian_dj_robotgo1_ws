@@ -2,6 +2,9 @@
 #include<stdio.h>
 #include<sys/types.h>
 #include <sensor_msgs/Joy.h>
+#include <chrono>
+#include <iomanip>
+#include <iostream>
 
 class XianDjRobotgo1LocalController
 {
@@ -13,20 +16,25 @@ class XianDjRobotgo1LocalController
             controller_sub = nh.subscribe<sensor_msgs::Joy>("joy", 10, &XianDjRobotgo1LocalController::controller_callback, this);
         }
 
-        ros::WallTimer m_timer_heart_beat;
+        // ros::WallTimer m_timer_heart_beat;
         ros::WallTimer m_timer_control;
 
-        void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
+        // void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
+        // {
+        //     ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", xian_dj_robotgo1_local_controller_heart_beat); 
+        //     std::cout << "xian_dj_robotgo1_local_controller_heart_beat: " << xian_dj_robotgo1_local_controller_heart_beat << std::endl;
+        //     counter = counter > 1000 ? 0 : (counter + 1);
+        //     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", counter);  // 自行替换
+        // }
+
+        void m_timer_control_func(const ros::WallTimerEvent& event)
         {
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", xian_dj_robotgo1_local_controller_heart_beat); 
             std::cout << "xian_dj_robotgo1_local_controller_heart_beat: " << xian_dj_robotgo1_local_controller_heart_beat << std::endl;
             counter = counter > 1000 ? 0 : (counter + 1);
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", counter);  // 自行替换
-        }
 
-        void m_timer_control_func(const ros::WallTimerEvent& event)
-        {
-            
+
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_left_cmd", xian_dj_local_controller_left_cmd);
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_right_cmd", xian_dj_local_controller_right_cmd);
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_up_cmd", xian_dj_local_controller_up_cmd);
@@ -52,7 +60,7 @@ class XianDjRobotgo1LocalController
             // printf("xian_dj_local_controller_b_cmd: %d \n", xian_dj_local_controller_b_cmd);
             // printf("xian_dj_local_controller_y_cmd: %d \n", xian_dj_local_controller_y_cmd);
             // printf("xian_dj_local_controller_a_cmd: %d \n", xian_dj_local_controller_a_cmd);
-            // printf("xian_dj_local_controller_left_rocker_x_cmd: %f \n", xian_dj_local_controller_left_rocker_x_cmd);
+            printf("xian_dj_local_controller_left_rocker_x_cmd: %f \n", xian_dj_local_controller_left_rocker_x_cmd);
             // printf("xian_dj_local_controller_left_rocker_y_cmd: %f \n", xian_dj_local_controller_left_rocker_y_cmd);
             // printf("xian_dj_local_controller_right_rocker_x_cmd: %f \n", xian_dj_local_controller_right_rocker_x_cmd);
             // printf("xian_dj_local_controller_right_rocker_y_cmd: %f \n", xian_dj_local_controller_right_rocker_y_cmd);
@@ -60,6 +68,7 @@ class XianDjRobotgo1LocalController
             // printf("xian_dj_local_controller_r2_cmd: %d \n", xian_dj_local_controller_r2_cmd);
             // printf("xian_dj_local_controller_l1_cmd: %d \n", xian_dj_local_controller_l1_cmd);
             // printf("xian_dj_local_controller_l2_cmd: %d \n", xian_dj_local_controller_l2_cmd);
+            // someMethod();
 
         }
         void controller_callback(const sensor_msgs::Joy::ConstPtr &Joy)
@@ -113,7 +122,18 @@ class XianDjRobotgo1LocalController
             xian_dj_local_controller_r2_cmd = Joy->buttons[9];
             xian_dj_local_controller_l1_cmd = Joy->buttons[6];
             xian_dj_local_controller_l2_cmd = Joy->buttons[8];
+            printf("hello \n");
             
+        }
+        void someMethod() 
+        {
+            auto now = std::chrono::system_clock::now();
+            auto secs = std::chrono::system_clock::to_time_t(now);
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        now.time_since_epoch()) % 1000;
+            std::cout << "HH:MM:SS.mmm: "
+                    << std::put_time(std::localtime(&secs), "%H:%M:%S")
+                    << '.' << std::setfill('0') << std::setw(3) << ms.count() << '\n';
         }
 
     private:
@@ -155,8 +175,8 @@ int main(int argc, char** argv)
     ros::AsyncSpinner spinner(0);
     spinner.start();
 
-    xian_dj_robotgo1_local_controller.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1LocalController::m_timer_heart_beat_func, &xian_dj_robotgo1_local_controller);
-    xian_dj_robotgo1_local_controller.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.02), &XianDjRobotgo1LocalController::m_timer_control_func, &xian_dj_robotgo1_local_controller);
+    // xian_dj_robotgo1_local_controller.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1LocalController::m_timer_heart_beat_func, &xian_dj_robotgo1_local_controller);
+    xian_dj_robotgo1_local_controller.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.3), &XianDjRobotgo1LocalController::m_timer_control_func, &xian_dj_robotgo1_local_controller);
     ros::waitForShutdown();
     
     // ros::spin();

@@ -13,19 +13,24 @@ class XianDjRobotgo1BackEnd
             pub = nh.advertise<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_back_end>("xian_dj_robotgo1_back_end_msg", 1);
         }
 
-        ros::WallTimer m_timer_heart_beat;
+        // ros::WallTimer m_timer_heart_beat;
         ros::WallTimer m_timer_control;
 
-        void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
+        // void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
+        // {
+        //     ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_back_end_heart_beat", xian_dj_robotgo1_back_end_heart_beat); 
+        //     std::cout << "xian_dj_robotgo1_back_end_heart_beat: " << xian_dj_robotgo1_back_end_heart_beat << std::endl;
+        //     counter = counter > 1000 ? 0 : (counter + 1);
+        //     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_back_end_heart_beat", counter);  // 自行替换
+        // }
+
+        void m_timer_control_func(const ros::WallTimerEvent& event)
         {
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_back_end_heart_beat", xian_dj_robotgo1_back_end_heart_beat); 
             std::cout << "xian_dj_robotgo1_back_end_heart_beat: " << xian_dj_robotgo1_back_end_heart_beat << std::endl;
             counter = counter > 1000 ? 0 : (counter + 1);
             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_back_end_heart_beat", counter);  // 自行替换
-        }
 
-        void m_timer_control_func(const ros::WallTimerEvent& event)
-        {
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_params_server_heart_beat", xian_dj_robotgo1_params_server_heart_beat);
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_error_monitor_heart_beat", xian_dj_robotgo1_error_monitor_heart_beat);
             ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_back_end_heart_beat", xian_dj_robotgo1_back_end_heart_beat);
@@ -199,8 +204,8 @@ int main(int argc, char** argv)
     ros::AsyncSpinner spinner(0);
     spinner.start();
 
-    xian_dj_robotgo1_back_end.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1BackEnd::m_timer_heart_beat_func, &xian_dj_robotgo1_back_end);
-    xian_dj_robotgo1_back_end.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.1), &XianDjRobotgo1BackEnd::m_timer_control_func, &xian_dj_robotgo1_back_end);
+    // xian_dj_robotgo1_back_end.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1BackEnd::m_timer_heart_beat_func, &xian_dj_robotgo1_back_end);
+    xian_dj_robotgo1_back_end.m_timer_control = nh_2.createWallTimer(ros::WallDuration(1), &XianDjRobotgo1BackEnd::m_timer_control_func, &xian_dj_robotgo1_back_end);
     ros::waitForShutdown();
     
     // ros::spin();
