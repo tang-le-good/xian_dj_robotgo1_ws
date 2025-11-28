@@ -1,0 +1,19 @@
+std_msgs/Header header
+int32 xian_dj_local_controller_left_cmd 
+int32 xian_dj_local_controller_right_cmd 
+int32 xian_dj_local_controller_up_cmd 
+int32 xian_dj_local_controller_down_cmd
+int32 xian_dj_local_controller_x_cmd 
+int32 xian_dj_local_controller_b_cmd 
+int32 xian_dj_local_controller_y_cmd 
+int32 xian_dj_local_controller_a_cmd 
+
+float32 xian_dj_local_controller_left_rocker_x_cmd 
+float32 xian_dj_local_controller_left_rocker_y_cmd 
+float32 xian_dj_local_controller_right_rocker_x_cmd 
+float32 xian_dj_local_controller_right_rocker_y_cmd 
+
+int32 xian_dj_local_controller_r1_cmd 
+int32 xian_dj_local_controller_r2_cmd 
+int32 xian_dj_local_controller_l1_cmd 
+int32 xian_dj_local_controller_l2_cmd

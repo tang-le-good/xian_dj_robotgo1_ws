@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-    <node name ="xian_dj_robotgo1_params_server" pkg="xian_dj_robotgo1_param_pkg" type="xian_dj_robotgo1_params_server" />
     <!-- <node name ="xian_dj_robotgo1_battery_level" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_battery_level" /> -->
     <node name ="xian_dj_robotgo1_lighter_displayer" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_lighter_displayer.py" />
     <node name ="xian_dj_robotgo1_state_display" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_state_display" />
@@ -8,7 +7,6 @@
     <node name ="xian_dj_robotgo1_local_controller" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_local_controller" />
     <node name ="xian_dj_robotgo1_switch_mode" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_switch_mode" />
     <node name ="xian_dj_robotgo1_control" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_control" />
-    <node name ="xian_dj_robotgo1_back_end" pkg="xian_dj_robotgo1_control_pkg" type="xian_dj_robotgo1_back_end" />
 
 
     <!-- 启动车辆底盘launch文件 -->

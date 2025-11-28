@@ -7,6 +7,8 @@ from typing import Dict
 import socket
 import sys
 import select
+from xian_dj_robotgo1_control_pkg.msg import xian_dj_robotgo1_lighter_displayer
+from std_msgs.msg import UInt16
 
 # 服务器配置
 SERVER_IP = "192.168.1.134"
@@ -251,8 +253,14 @@ class XianDjRobotgo1LighterDisplayer:
         #TCP参数
         self.client = TCPClient()
         self.tcp_init()
+
+         # 订阅话题
+        rospy.Subscriber("xian_dj_robotgo1_lighter_displayer_msg", xian_dj_robotgo1_lighter_displayer, self.callback)
+        # 发布话题
+        self.pub_msg = rospy.Publisher("xian_dj_robotgo1_lighter_displayer_state_msg", UInt16, queue_size=1)
+        self.heart_beat_msg = UInt16()
         
-        self.counter = 0
+        self.xian_dj_robotgo1_lighter_displayer_heart_beat = 0
         
         # GPIO全局编号
         self.GPIO_green_lighter = 83  # 引脚29, 控制绿灯
@@ -262,7 +270,7 @@ class XianDjRobotgo1LighterDisplayer:
         self.xian_dj_robotgo1_green_ligher_cmd = 0
         self.xian_dj_robotgo1_red_ligher_cmd = 0
         self.xian_dj_robotgo1_yellow_ligher_cmd = 0
-        self.xian_dj_robotgo1_displayer_cmd = 0
+        self.xian_dj_robotgo1_displayer_cmd = "$001,54321#"
 
         #引脚使能，并设置为输出模式
         self.gpio_export(self.GPIO_green_lighter)
@@ -274,58 +282,26 @@ class XianDjRobotgo1LighterDisplayer:
         self.gpio_export(self.GPIO_yellow_lighter)
         self.gpio_set_direction(self.GPIO_yellow_lighter, "out")
 
-    # def xian_heat_beat_callback(self, event):
-    #     rospy.set_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_lighter_displayer_heart_beat", self.counter)
-    #     xian_dj_robotgo1_lighter_displayer_heart_beat = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_lighter_displayer_heart_beat")
-    #     if self.counter>1000:
-    #         self.counter = 0
-    #     self.counter += 1
-    #     print("xian_dj_robotgo1_lighter_displayer_heart_beat:", xian_dj_robotgo1_lighter_displayer_heart_beat)
-    
-    
-    # def xian_dj_tobotgo1_green_lighter_func(self, event):
-    #     self.xian_dj_robotgo1_green_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd")
-    #     print("green:", self.xian_dj_robotgo1_green_ligher_cmd)
-    #     self.gpio_set_value(self.GPIO_green_lighter, self.xian_dj_robotgo1_green_ligher_cmd)
-    
-
-    # def xian_dj_tobotgo1_red_lighter_func(self, event):
-    #     self.xian_dj_robotgo1_red_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd")
-    #     print("red:", self.xian_dj_robotgo1_red_ligher_cmd)
-    #     self.gpio_set_value(self.GPIO_red_lighter, self.xian_dj_robotgo1_red_ligher_cmd)
-        
-
-    # def xian_dj_tobotgo1_yellow_lighter_func(self, event):
-    #     self.xian_dj_robotgo1_yellow_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd")
-    #     print("yellow:", self.xian_dj_robotgo1_yellow_ligher_cmd)
-    #     self.gpio_set_value(self.GPIO_yellow_lighter, self.xian_dj_robotgo1_yellow_ligher_cmd)
+    def callback(self, data):
+        self.xian_dj_robotgo1_green_ligher_cmd = data.xian_dj_robotgo1_green_ligher_cmd
+        self.xian_dj_robotgo1_red_ligher_cmd = data.xian_dj_robotgo1_red_ligher_cmd
+        self.xian_dj_robotgo1_yellow_ligher_cmd = data.xian_dj_robotgo1_yellow_ligher_cmd
+        self.xian_dj_robotgo1_displayer_cmd = data.xian_dj_robotgo1_displayer_cmd
         
 
     def xian_dj_tobotgo1_displayer_func(self, event):
-        # 心跳
-        rospy.set_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_lighter_displayer_heart_beat", self.counter)
-        xian_dj_robotgo1_lighter_displayer_heart_beat = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_lighter_displayer_heart_beat")
-        if self.counter>1000:
-            self.counter = 0
-        self.counter += 1
-        print("xian_dj_robotgo1_lighter_displayer_heart_beat:", xian_dj_robotgo1_lighter_displayer_heart_beat)
-
         # 绿灯
-        self.xian_dj_robotgo1_green_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd")
         print("green:", self.xian_dj_robotgo1_green_ligher_cmd)
         self.gpio_set_value(self.GPIO_green_lighter, self.xian_dj_robotgo1_green_ligher_cmd)
 
         # 红灯
-        self.xian_dj_robotgo1_red_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd")
         print("red:", self.xian_dj_robotgo1_red_ligher_cmd)
         self.gpio_set_value(self.GPIO_red_lighter, self.xian_dj_robotgo1_red_ligher_cmd)
 
         # 黄灯
-        self.xian_dj_robotgo1_yellow_ligher_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd")
         print("yellow:", self.xian_dj_robotgo1_yellow_ligher_cmd)
         self.gpio_set_value(self.GPIO_yellow_lighter, self.xian_dj_robotgo1_yellow_ligher_cmd)
 
-        self.xian_dj_robotgo1_displayer_cmd = rospy.get_param("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd")
         print("self.xian_dj_robotgo1_displayer_cmd:", self.xian_dj_robotgo1_displayer_cmd)
         if not self.client.is_connected():
             print("连接已断开，尝试重新连接...")
@@ -336,11 +312,18 @@ class XianDjRobotgo1LighterDisplayer:
         # 准备发送不同长度的消息
         message_to_send = self.xian_dj_robotgo1_displayer_cmd
         
-        
         # 发送数据
         if not self.client.send_data(message_to_send, add_delimiter=False):
             print("发送失败，等待后继续...")
             return -1
+        else:
+            # 心跳
+            if self.xian_dj_robotgo1_lighter_displayer_heart_beat>1000:
+                self.xian_dj_robotgo1_lighter_displayer_heart_beat = 0
+            self.xian_dj_robotgo1_lighter_displayer_heart_beat += 1
+            print("xian_dj_robotgo1_lighter_displayer_heart_beat:", self.xian_dj_robotgo1_lighter_displayer_heart_beat)
+        self.heart_beat_msg.data = self.xian_dj_robotgo1_lighter_displayer_heart_beat
+        self.pub_msg.publish(self.heart_beat_msg)
 
     def tcp_init(self):
         # 初始连接
@@ -375,10 +358,6 @@ if __name__ == '__main__':
     try:
         tt = XianDjRobotgo1LighterDisplayer()
         rospy.init_node('xian_dj_robotgo1_lighter_displayer', anonymous=True)  # 初始化ROS节点
-        # rospy.Timer(rospy.Duration(1), tt.xian_heat_beat_callback, oneshot=False) # 心跳线程
-        # rospy.Timer(rospy.Duration(0.8), tt.xian_dj_tobotgo1_green_lighter_func, oneshot=False) # 绿灯线程
-        # rospy.Timer(rospy.Duration(0.8), tt.xian_dj_tobotgo1_red_lighter_func, oneshot=False) # 红灯线程
-        # rospy.Timer(rospy.Duration(0.8), tt.xian_dj_tobotgo1_yellow_lighter_func, oneshot=False) # 黄灯线程
         rospy.Timer(rospy.Duration(1), tt.xian_dj_tobotgo1_displayer_func, oneshot=False) # 数显模块线程
         rospy.spin()  # 添加这行确保节点持续运行
 

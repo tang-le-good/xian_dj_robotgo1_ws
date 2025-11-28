@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include "xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_local_controller.h"
+#include <std_msgs/UInt16.h>
 
 class XianDjRobotgo1LocalController
 {
@@ -14,63 +16,21 @@ class XianDjRobotgo1LocalController
             // 创建一个ROS节点句柄
             ros::NodeHandle nh;
             controller_sub = nh.subscribe<sensor_msgs::Joy>("joy", 10, &XianDjRobotgo1LocalController::controller_callback, this);
+            xian_dj_robotgo1_local_controller_state_pub = nh.advertise<std_msgs::UInt16>("xian_dj_robotgo1_local_controller_state_msg", 1);
+            xian_dj_robotgo1_local_controller_pub = nh.advertise<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_local_controller>("xian_dj_robotgo1_local_controller_msg", 1); 
         }
 
-        // ros::WallTimer m_timer_heart_beat;
-        ros::WallTimer m_timer_control;
+        ros::WallTimer m_timer_heart_beat;
 
-        // void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
-        // {
-        //     ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", xian_dj_robotgo1_local_controller_heart_beat); 
-        //     std::cout << "xian_dj_robotgo1_local_controller_heart_beat: " << xian_dj_robotgo1_local_controller_heart_beat << std::endl;
-        //     counter = counter > 1000 ? 0 : (counter + 1);
-        //     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", counter);  // 自行替换
-        // }
-
-        void m_timer_control_func(const ros::WallTimerEvent& event)
+        void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
         {
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", xian_dj_robotgo1_local_controller_heart_beat); 
+            xian_dj_robotgo1_local_controller_heart_beat = xian_dj_robotgo1_local_controller_heart_beat > 1000 ? 0 : (xian_dj_robotgo1_local_controller_heart_beat + 1);
             std::cout << "xian_dj_robotgo1_local_controller_heart_beat: " << xian_dj_robotgo1_local_controller_heart_beat << std::endl;
-            counter = counter > 1000 ? 0 : (counter + 1);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_local_controller_heart_beat", counter);  // 自行替换
-
-
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_left_cmd", xian_dj_local_controller_left_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_right_cmd", xian_dj_local_controller_right_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_up_cmd", xian_dj_local_controller_up_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_down_cmd", xian_dj_local_controller_down_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_x_cmd", xian_dj_local_controller_x_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_b_cmd", xian_dj_local_controller_b_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_y_cmd", xian_dj_local_controller_y_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_a_cmd", xian_dj_local_controller_a_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_left_rocker_x_cmd", xian_dj_local_controller_left_rocker_x_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_left_rocker_y_cmd", xian_dj_local_controller_left_rocker_y_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_right_rocker_x_cmd", xian_dj_local_controller_right_rocker_x_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_right_rocker_y_cmd", xian_dj_local_controller_right_rocker_y_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_r1_cmd", xian_dj_local_controller_r1_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_r2_cmd", xian_dj_local_controller_r2_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_l1_cmd", xian_dj_local_controller_l1_cmd);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_local_controller_l2_cmd", xian_dj_local_controller_l2_cmd);
-
-            // printf("xian_dj_local_controller_left_cmd: %d \n", xian_dj_local_controller_left_cmd);
-            // printf("xian_dj_local_controller_right_cmd: %d \n", xian_dj_local_controller_right_cmd);
-            // printf("xian_dj_local_controller_up_cmd: %d \n", xian_dj_local_controller_up_cmd);
-            // printf("xian_dj_local_controller_down_cmd: %d \n", xian_dj_local_controller_down_cmd);
-            // printf("xian_dj_local_controller_x_cmd: %d \n", xian_dj_local_controller_x_cmd);
-            // printf("xian_dj_local_controller_b_cmd: %d \n", xian_dj_local_controller_b_cmd);
-            // printf("xian_dj_local_controller_y_cmd: %d \n", xian_dj_local_controller_y_cmd);
-            // printf("xian_dj_local_controller_a_cmd: %d \n", xian_dj_local_controller_a_cmd);
-            printf("xian_dj_local_controller_left_rocker_x_cmd: %f \n", xian_dj_local_controller_left_rocker_x_cmd);
-            // printf("xian_dj_local_controller_left_rocker_y_cmd: %f \n", xian_dj_local_controller_left_rocker_y_cmd);
-            // printf("xian_dj_local_controller_right_rocker_x_cmd: %f \n", xian_dj_local_controller_right_rocker_x_cmd);
-            // printf("xian_dj_local_controller_right_rocker_y_cmd: %f \n", xian_dj_local_controller_right_rocker_y_cmd);
-            // printf("xian_dj_local_controller_r1_cmd: %d \n", xian_dj_local_controller_r1_cmd);
-            // printf("xian_dj_local_controller_r2_cmd: %d \n", xian_dj_local_controller_r2_cmd);
-            // printf("xian_dj_local_controller_l1_cmd: %d \n", xian_dj_local_controller_l1_cmd);
-            // printf("xian_dj_local_controller_l2_cmd: %d \n", xian_dj_local_controller_l2_cmd);
-            // someMethod();
-
+            heart_beat_msg.data = xian_dj_robotgo1_local_controller_heart_beat;
+            xian_dj_robotgo1_local_controller_state_pub.publish(heart_beat_msg);
         }
+
+
         void controller_callback(const sensor_msgs::Joy::ConstPtr &Joy)
         {
             axes_6_common = Joy->axes[6];
@@ -122,6 +82,25 @@ class XianDjRobotgo1LocalController
             xian_dj_local_controller_r2_cmd = Joy->buttons[9];
             xian_dj_local_controller_l1_cmd = Joy->buttons[6];
             xian_dj_local_controller_l2_cmd = Joy->buttons[8];
+
+            pub_msg.xian_dj_local_controller_left_cmd = xian_dj_local_controller_left_cmd ;
+            pub_msg.xian_dj_local_controller_right_cmd = xian_dj_local_controller_right_cmd ;
+            pub_msg.xian_dj_local_controller_up_cmd = xian_dj_local_controller_up_cmd ;
+            pub_msg.xian_dj_local_controller_down_cmd= xian_dj_local_controller_down_cmd;
+            pub_msg.xian_dj_local_controller_x_cmd = xian_dj_local_controller_x_cmd ;
+            pub_msg.xian_dj_local_controller_b_cmd = xian_dj_local_controller_b_cmd ;
+            pub_msg.xian_dj_local_controller_y_cmd = xian_dj_local_controller_y_cmd ;
+            pub_msg.xian_dj_local_controller_a_cmd = xian_dj_local_controller_a_cmd ;
+            pub_msg.xian_dj_local_controller_left_rocker_x_cmd = xian_dj_local_controller_left_rocker_x_cmd ;
+            pub_msg.xian_dj_local_controller_left_rocker_y_cmd = xian_dj_local_controller_left_rocker_y_cmd ;
+            pub_msg.xian_dj_local_controller_right_rocker_x_cmd = xian_dj_local_controller_right_rocker_x_cmd ;
+            pub_msg.xian_dj_local_controller_right_rocker_y_cmd = xian_dj_local_controller_right_rocker_y_cmd ;
+            pub_msg.xian_dj_local_controller_r1_cmd = xian_dj_local_controller_r1_cmd ;
+            pub_msg.xian_dj_local_controller_r2_cmd = xian_dj_local_controller_r2_cmd ;
+            pub_msg.xian_dj_local_controller_l1_cmd = xian_dj_local_controller_l1_cmd ;
+            pub_msg.xian_dj_local_controller_l2_cmd = xian_dj_local_controller_l2_cmd ;
+            xian_dj_robotgo1_local_controller_pub.publish(pub_msg);
+
             printf("hello \n");
             
         }
@@ -138,7 +117,10 @@ class XianDjRobotgo1LocalController
 
     private:
         ros::Subscriber controller_sub;
-        int counter = 0;
+        ros::Publisher xian_dj_robotgo1_local_controller_state_pub;
+        ros::Publisher xian_dj_robotgo1_local_controller_pub;
+        xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_local_controller pub_msg;
+        std_msgs::UInt16 heart_beat_msg;
         int xian_dj_robotgo1_local_controller_heart_beat = 0;
 
         int xian_dj_local_controller_left_cmd = 0;
@@ -175,8 +157,7 @@ int main(int argc, char** argv)
     ros::AsyncSpinner spinner(0);
     spinner.start();
 
-    // xian_dj_robotgo1_local_controller.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1LocalController::m_timer_heart_beat_func, &xian_dj_robotgo1_local_controller);
-    xian_dj_robotgo1_local_controller.m_timer_control = nh_2.createWallTimer(ros::WallDuration(0.3), &XianDjRobotgo1LocalController::m_timer_control_func, &xian_dj_robotgo1_local_controller);
+    xian_dj_robotgo1_local_controller.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1LocalController::m_timer_heart_beat_func, &xian_dj_robotgo1_local_controller);
     ros::waitForShutdown();
     
     // ros::spin();

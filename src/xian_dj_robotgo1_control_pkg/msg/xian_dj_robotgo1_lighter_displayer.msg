@@ -1,0 +1,5 @@
+std_msgs/Header header
+int32 xian_dj_robotgo1_red_ligher_cmd 
+int32 xian_dj_robotgo1_green_ligher_cmd 
+int32 xian_dj_robotgo1_yellow_ligher_cmd 
+string xian_dj_robotgo1_displayer_cmd 

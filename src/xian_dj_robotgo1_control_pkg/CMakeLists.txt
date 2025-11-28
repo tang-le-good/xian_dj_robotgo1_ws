@@ -51,8 +51,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  xian_dj_robotgo1_back_end.msg
-  
+  xian_dj_robotgo1_lighter_displayer.msg
+  xian_dj_robotgo1_local_controller.msg
+  xian_dj_robotgo1_state_display.msg
+  xian_dj_robotgo1_switch_mode.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -119,6 +121,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 # include
+  /root/code/xian_dj_base_assets_ws/devel/include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -231,6 +234,3 @@ add_executable(xian_dj_robotgo1_battery_level src/xian_dj_robotgo1_battery_level
 add_dependencies(xian_dj_robotgo1_battery_level ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(xian_dj_robotgo1_battery_level ${catkin_LIBRARIES})
 
-add_executable(xian_dj_robotgo1_back_end src/xian_dj_robotgo1_back_end.cpp )
-add_dependencies(xian_dj_robotgo1_back_end ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(xian_dj_robotgo1_back_end ${catkin_LIBRARIES})

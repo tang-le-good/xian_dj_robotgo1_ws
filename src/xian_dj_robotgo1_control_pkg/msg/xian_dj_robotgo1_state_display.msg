@@ -1,0 +1,6 @@
+std_msgs/Header header
+int32 xian_dj_robotgo1_m_system_mode 
+int32 xian_dj_robotgo1_s_system_mode 
+string xian_dj_robotgo1_battery_level 
+int32 xian_dj_robotgo1_display_mode 
+int32 xian_dj_robotgo1_error_code 

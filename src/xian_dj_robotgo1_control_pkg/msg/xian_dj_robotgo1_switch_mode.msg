@@ -1,0 +1,5 @@
+std_msgs/Header header
+int32 xian_dj_robotgo1_auto_mode 
+int32 xian_dj_robotgo1_tele_op_mode 
+int32 xian_dj_robotgo1_m_system_mode 
+int32 xian_dj_robotgo1_s_system_mode

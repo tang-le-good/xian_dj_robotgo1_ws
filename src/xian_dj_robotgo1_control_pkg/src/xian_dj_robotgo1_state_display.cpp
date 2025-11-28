@@ -4,6 +4,10 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include "xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_state_display.h"
+#include <std_msgs/UInt16.h>
+#include "xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_lighter_displayer.h"
+
 
 class XianDjRobotgo1StateDisplay
 {
@@ -11,33 +15,32 @@ class XianDjRobotgo1StateDisplay
         XianDjRobotgo1StateDisplay()
         {
             // 创建一个ROS节点句柄
-            // ros::NodeHandle nh;
+            ros::NodeHandle nh;
+            xian_dj_robotgo1_state_display_sub = nh.subscribe<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_state_display>("xian_dj_robotgo1_state_display_msg", 10, &XianDjRobotgo1StateDisplay::controller_callback, this);
+            xian_dj_robotgo1_state_display_state_pub = nh.advertise<std_msgs::UInt16>("xian_dj_robotgo1_state_display_state_msg", 1);
+            xian_dj_robotgo1_state_display_pub = nh.advertise<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_lighter_displayer>("xian_dj_robotgo1_lighter_displayer_msg", 1); 
         }
 
-        // ros::WallTimer m_timer_heart_beat;
+
         ros::WallTimer m_timer_control;
 
-        // void m_timer_heart_beat_func(const ros::WallTimerEvent& event)
-        // {
-        //     ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_state_display_heart_beat", xian_dj_robotgo1_state_display_heart_beat); 
-        //     std::cout << "xian_dj_robotgo1_state_display_heart_beat: " << xian_dj_robotgo1_state_display_heart_beat << std::endl;
-        //     counter = counter > 1000 ? 0 : (counter + 1);
-        //     ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_state_display_heart_beat", counter);  // 自行替换
-        // }
+        void controller_callback(const xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_state_display::ConstPtr &data)
+        {
+            xian_dj_robotgo1_display_mode = data->xian_dj_robotgo1_display_mode;
+            xian_dj_robotgo1_error_code = data->xian_dj_robotgo1_error_code;
+            xian_dj_robotgo1_m_system_mode = data->xian_dj_robotgo1_m_system_mode;
+            xian_dj_robotgo1_s_system_mode = data->xian_dj_robotgo1_s_system_mode;
+            xian_dj_robotgo1_battery_level = data->xian_dj_robotgo1_battery_level;
+        }
 
         void m_timer_control_func(const ros::WallTimerEvent& event)
         {    
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_state_display_heart_beat", xian_dj_robotgo1_state_display_heart_beat); 
+            // 发布心跳
+            xian_dj_robotgo1_state_display_heart_beat = xian_dj_robotgo1_state_display_heart_beat > 1000 ? 0 : (xian_dj_robotgo1_state_display_heart_beat + 1);
             std::cout << "xian_dj_robotgo1_state_display_heart_beat: " << xian_dj_robotgo1_state_display_heart_beat << std::endl;
-            counter = counter > 1000 ? 0 : (counter + 1);
-            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_state_display_heart_beat", counter);  // 自行替换
+            heart_beat_msg.data = xian_dj_robotgo1_state_display_heart_beat;
+            xian_dj_robotgo1_state_display_state_pub.publish(heart_beat_msg);
 
-
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_display_mode", xian_dj_robotgo1_display_mode); 
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_error_code", xian_dj_robotgo1_error_code); 
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_m_system_mode", xian_dj_robotgo1_m_system_mode); 
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_s_system_mode", xian_dj_robotgo1_s_system_mode); 
-            ros::param::get("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_battery_level", xian_dj_robotgo1_battery_level); 
             light_timer_counter++;
             display_timer_counter++;
 
@@ -55,11 +58,11 @@ class XianDjRobotgo1StateDisplay
             switch(xian_dj_robotgo1_display_mode)
             {
                 case 0:
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
-                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0);
-                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0); 
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level); // std::string
+                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
+                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level); // std::string
                     // printf("xian_dj_robotgo1_battery_level: %s \n", format_battery_level.c_str());
+                    pub_msg.xian_dj_robotgo1_green_ligher_cmd = 1;
+                    pub_msg.xian_dj_robotgo1_displayer_cmd = format_battery_level.c_str();
                     printf("case0 \n");
                     break;
                     
@@ -72,15 +75,13 @@ class XianDjRobotgo1StateDisplay
                         light_timer_counter = 0;
                         if (lighter_state)
                         {
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 1);  
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 1);  
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 1;
                         }
                         else
                         {
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
                         }
                         lighter_state =!lighter_state;
                     }
@@ -89,11 +90,13 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_battery_level.c_str();
                         }
                         else
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_error_code);
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_error_code);
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_error_code.c_str();
                         }
                         display_state =!display_state;
                     }
@@ -106,15 +109,13 @@ class XianDjRobotgo1StateDisplay
                         light_timer_counter = 0;
                         if (lighter_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 1;
                         }
                         else
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 0;
                         }
                         lighter_state =!lighter_state;
                     }
@@ -123,12 +124,14 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                             ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            //  ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                             pub_msg.xian_dj_robotgo1_displayer_cmd = format_battery_level.c_str();
                         }
                         else
                         {
-                            
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,A" + format_m_mode + "." + format_s_mode + "#");
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,A" + format_m_mode + "." + format_s_mode + "#");
+                            std::string format_m_s_str = "$001,A" + format_m_mode + "." + format_s_mode + "#";
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_m_s_str.c_str();
                         }
                         display_state =!display_state;
                     }
@@ -141,15 +144,21 @@ class XianDjRobotgo1StateDisplay
                         light_timer_counter = 0;
                         if (lighter_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 1); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 1); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_yellow_ligher_cmd = 1;
                         }
                         else
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_yellow_ligher_cmd = 0;
                         }
                         lighter_state =!lighter_state;
                     }
@@ -158,11 +167,14 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_battery_level.c_str();
                         }
                         else
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
+                            std::string format_m_s_str = "$001,C" + format_m_mode + "." + format_s_mode + "#";
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_m_s_str.c_str();
                         }
                         display_state =!display_state;
                     }
@@ -175,15 +187,21 @@ class XianDjRobotgo1StateDisplay
                         light_timer_counter = 0;
                         if (lighter_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 1;
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_yellow_ligher_cmd = 0;
                         }
                         else
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_green_ligher_cmd", 1); 
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);  
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_yellow_ligher_cmd", 0); 
+                            pub_msg.xian_dj_robotgo1_green_ligher_cmd = 1;
+                            pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
+                            pub_msg.xian_dj_robotgo1_yellow_ligher_cmd = 0;
                         }
                         lighter_state =!lighter_state;
                     }
@@ -192,13 +210,16 @@ class XianDjRobotgo1StateDisplay
                         display_timer_counter = 0;
                         if (display_state)
                         {
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", format_battery_level);
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_battery_level.c_str();
                         }
                         else
                         {
-                            std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
-                            std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
-                            ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
+                            // std::string format_m_mode = intToFixedWidthString(xian_dj_robotgo1_m_system_mode, 2);
+                            // std::string format_s_mode = intToFixedWidthString(xian_dj_robotgo1_s_system_mode, 2);
+                            // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_displayer_cmd", "$001,C" + format_m_mode + "." + format_s_mode + "#");
+                            std::string format_m_s_str = "$001,C" + format_m_mode + "." + format_s_mode + "#";
+                            pub_msg.xian_dj_robotgo1_displayer_cmd = format_m_s_str.c_str();
                         }
                         display_state =!display_state;
                     }
@@ -206,14 +227,17 @@ class XianDjRobotgo1StateDisplay
 
                 case 5: 
                     printf("case5 \n");
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 1);
+                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 1);
+                    pub_msg.xian_dj_robotgo1_red_ligher_cmd = 1;
                     break;
 
                 case 6: 
                     printf("case6 \n");
-                    ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);
+                    // ros::param::set("/xian_dj_robotgo1_params_server/xian_dj_robotgo1_red_ligher_cmd", 0);
+                    pub_msg.xian_dj_robotgo1_red_ligher_cmd = 0;
                     break;
             }
+            xian_dj_robotgo1_state_display_pub.publish(pub_msg);
         }
 
         std::string intToFixedWidthString(int num, int width) 
@@ -263,8 +287,12 @@ class XianDjRobotgo1StateDisplay
         }
 
     private:
-        int counter = 0;
         int xian_dj_robotgo1_state_display_heart_beat = 0;
+        ros::Subscriber xian_dj_robotgo1_state_display_sub;
+        ros::Publisher xian_dj_robotgo1_state_display_state_pub;
+        ros::Publisher xian_dj_robotgo1_state_display_pub;
+        xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_lighter_displayer pub_msg;
+        std_msgs::UInt16 heart_beat_msg;
 
         int xian_dj_robotgo1_display_mode = 0;
         int xian_dj_robotgo1_error_code = 0;
@@ -295,7 +323,6 @@ int main(int argc, char** argv)
     ros::AsyncSpinner spinner(0);
     spinner.start();
 
-    // xian_dj_robotgo1_state_display.m_timer_heart_beat = nh_2.createWallTimer(ros::WallDuration(1.0), &XianDjRobotgo1StateDisplay::m_timer_heart_beat_func, &xian_dj_robotgo1_state_display);
     xian_dj_robotgo1_state_display.m_timer_control = nh_2.createWallTimer(ros::WallDuration(1), &XianDjRobotgo1StateDisplay::m_timer_control_func, &xian_dj_robotgo1_state_display);
     ros::waitForShutdown();
     
