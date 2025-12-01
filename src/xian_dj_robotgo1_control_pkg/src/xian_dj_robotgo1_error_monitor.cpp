@@ -9,6 +9,7 @@ class XianDjRobotgo1ErrorMonitor
         {
             // 创建一个ROS节点句柄
             ros::NodeHandle nh;
+            
         }
 
         ros::WallTimer m_timer_heart_beat;
