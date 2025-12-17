@@ -6,6 +6,7 @@
 #include <iomanip>
 #include "xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_state_display.h"
 #include <std_msgs/UInt16.h>
+#include <std_msgs/String.h>
 #include "xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_lighter_displayer.h"
 
 
@@ -17,6 +18,7 @@ class XianDjRobotgo1StateDisplay
             // 创建一个ROS节点句柄
             ros::NodeHandle nh;
             xian_dj_robotgo1_state_display_sub = nh.subscribe<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_state_display>("xian_dj_robotgo1_state_display_msg", 10, &XianDjRobotgo1StateDisplay::controller_callback, this);
+            xian_dj_robotgo1_battery_level_sub = nh.subscribe<std_msgs::String>("xian_dj_utils_agv_battery_level_msg", 10, &XianDjRobotgo1StateDisplay::battery_level_callback, this);
             xian_dj_robotgo1_state_display_state_pub = nh.advertise<std_msgs::UInt16>("xian_dj_robotgo1_state_display_state_msg", 1);
             xian_dj_robotgo1_state_display_pub = nh.advertise<xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_lighter_displayer>("xian_dj_robotgo1_lighter_displayer_msg", 1); 
         }
@@ -30,7 +32,16 @@ class XianDjRobotgo1StateDisplay
             xian_dj_robotgo1_error_code = data->xian_dj_robotgo1_error_code;
             xian_dj_robotgo1_m_system_mode = data->xian_dj_robotgo1_m_system_mode;
             xian_dj_robotgo1_s_system_mode = data->xian_dj_robotgo1_s_system_mode;
-            xian_dj_robotgo1_battery_level = data->xian_dj_robotgo1_battery_level;
+            // xian_dj_robotgo1_battery_level = data->xian_dj_robotgo1_battery_level;
+        }
+
+        void battery_level_callback(const std_msgs::String::ConstPtr &data)
+        {
+
+            xian_dj_robotgo1_battery_level = data->data.c_str();
+            int num = std::stoi(xian_dj_robotgo1_battery_level);
+            xian_dj_robotgo1_battery_level = intToFixedWidthString(num, 4);
+            
         }
 
         void m_timer_control_func(const ros::WallTimerEvent& event)
@@ -289,6 +300,7 @@ class XianDjRobotgo1StateDisplay
     private:
         int xian_dj_robotgo1_state_display_heart_beat = 0;
         ros::Subscriber xian_dj_robotgo1_state_display_sub;
+        ros::Subscriber xian_dj_robotgo1_battery_level_sub;
         ros::Publisher xian_dj_robotgo1_state_display_state_pub;
         ros::Publisher xian_dj_robotgo1_state_display_pub;
         xian_dj_robotgo1_control_pkg::xian_dj_robotgo1_lighter_displayer pub_msg;
