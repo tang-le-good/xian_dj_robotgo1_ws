@@ -92,7 +92,8 @@
             background-color: #f1f1f1;
             padding: 6px 12px;
             border-radius: 4px;
-            min-width: 80px;
+            min-width: 120px;
+            /* 加宽适配中文 */
             text-align: center;
             font-weight: bold;
         }
@@ -166,6 +167,15 @@
             color: #27ae60 !important;
         }
 
+        /* 子模式样式 */
+        .submode-valid {
+            color: #27ae60;
+        }
+
+        .submode-invalid {
+            color: #e74c3c;
+        }
+
         /* 本地控制器Flex布局样式 */
         .controller-card {
             display: flex;
@@ -237,7 +247,8 @@
             }
 
             .param-value {
-                min-width: 60px;
+                min-width: 100px;
+                /* 移动端适配 */
                 font-size: 12px;
             }
 
@@ -283,14 +294,12 @@
                 </div>
             </div>
 
-
-
-
             <!-- 状态显示 -->
             <div class="status-card state-display">
-                <div class="param-row">
+                <h3>整车状态展示模块</h3>
+                <!-- <div class="param-row">
                     <span class="param-name">m_system_mode <br>小车主模式指令:</span>
-                    <span id="m_system_mode" class="param-value">0</span>
+                    <span id="m_system_mode" class="param-value">0（车辆运动控制）</span>
                 </div>
                 <div class="param-row">
                     <span class="param-name">s_system_mode <br>小车子模式指令:</span>
@@ -299,19 +308,20 @@
                 <div class="param-row">
                     <span class="param-name">battery_level <br>小车电池电量指令:</span>
                     <span id="battery_level" class="param-value string-value">--</span>
-                </div>
+                </div> -->
                 <div class="param-row">
                     <span class="param-name">display_mode <br>灯组、数显显示模式指令:</span>
                     <span id="display_mode" class="param-value">0</span>
                 </div>
-                <!-- <div class="param-row">
-          <span class="param-name">错误代码:</span>
-          <span id="state_error_code" class="param-value">0</span>
-        </div> -->
+                <div class="param-row">
+                    <span class="param-name">agv_battery_level <br>电池电量:</span>
+                    <span id="agv_battery_level" class="param-value string-value"></span>
+                </div>
             </div>
 
             <!-- 模式切换 -->
             <div class="status-card switch-card switch-mode">
+                <h3>整车模式切换模块</h3>
                 <div class="param-row">
                     <span class="param-name">auto_mode <br>小车自动模式指令:</span>
                     <span id="auto_mode" class="param-value">0</span>
@@ -333,10 +343,6 @@
             <!-- 错误监控 -->
             <div class="status-card error-monitor">
                 <h3>节点运行监测</h3>
-                <!-- <div class="param-row">
-          <span class="param-name">综合错误信息:</span>
-          <span id="error_monitor_msg" class="param-value string-value">--</span>
-        </div> -->
                 <div class="param-row">
                     <span class="param-name">robot_error_code <br>整车及各机构故障代码:</span>
                     <span id="robot_error_code" class="param-value">0</span>
@@ -357,11 +363,8 @@
                     <span class="param-name">control_error <br>整车控制节点状态:</span>
                     <span id="control_error" class="param-value">0</span>
                 </div>
-                <!-- <div class="param-row">
-          <span class="param-name">灯光显示屏错误:</span>
-          <span id="lighter_displayer_error" class="param-value">0</span>
-        </div> -->
             </div>
+
             <div class="status-card controller-card local-controller">
                 <h3>本地遥控器接收指令模块</h3>
                 <div class="controller-groups">
@@ -456,7 +459,7 @@
     <script type="text/javascript">
         // 创建ROS连接
         var ros = new ROSLIB.Ros({
-            url: 'ws://localhost:9090'
+            url: 'ws://192.168.1.12:9090'
         });
 
         // 连接状态处理
@@ -485,11 +488,43 @@
             document.getElementById('lastUpdateTime').textContent = timeString;
         }
 
+        // 主模式数值转中文含义
+        function getMainModeText(modeNum) {
+            const num = Number(modeNum);
+            switch (num) {
+                case 0:
+                    return '0（车辆运动控制）';
+                case 1:
+                    return '1（伸缩杆运动控制）';
+                case 2:
+                    return '2（六自由度平台控制）';
+                default:
+                    return '0（车辆运动控制）'; // 无效值默认0
+            }
+        }
+
+        // 子模式数值转中文含义（仅主模式2时生效）
+        function getSubModeText(modeNum, mainMode) {
+            const mainNum = Number(mainMode);
+            const subNum = Number(modeNum);
+            if (mainNum !== 2) {
+                return '0'; // 主模式非2时子模式仅显示0
+            }
+            switch (subNum) {
+                case 0:
+                    return '0（平移）';
+                case 1:
+                    return '1（旋转）';
+                default:
+                    return '0（平移）'; // 无效值默认0
+            }
+        }
+
         // 订阅灯光和显示屏控制话题
         var lighterDisplayerListener = new ROSLIB.Topic({
             ros: ros,
             name: '/xian_dj_robotgo1_lighter_displayer_msg',
-            messageType: 'std_msgs/UInt16' // 注意：根据描述应该是自定义消息类型，这里可能需要调整
+            messageType: 'std_msgs/UInt16'
         });
 
         // 订阅本地控制器话题
@@ -498,7 +533,11 @@
             name: '/xian_dj_robotgo1_local_controller_msg',
             messageType: 'xian_dj_robotgo1_control_pkg/xian_dj_robotgo1_local_controller'
         });
-
+        var agvBatteryTopic = new ROSLIB.Topic({
+            ros: ros,
+            name: '/xian_dj_utils_agv_battery_level_msg',
+            messageType: 'std_msgs/String'
+        });
         // 订阅状态显示话题
         var stateDisplayListener = new ROSLIB.Topic({
             ros: ros,
@@ -525,30 +564,9 @@
             console.log('收到灯光和显示屏控制消息:', message);
             updateLastUpdateTime();
 
-            // 注意：由于描述中提到是UInt16但内容包含多个int32和string字段，
-            // 这里假设是自定义消息类型，实际可能需要调整
-            // 如果是标准UInt16消息，可能只包含一个data字段
             if (message.data !== undefined) {
-                // 如果是简单的UInt16消息，这里可能需要其他处理方式
                 console.log('收到UInt16数据:', message.data);
             }
-            // 实际实现需要根据具体的自定义消息类型来解析
-            // 以下为假设的字段解析（需要根据实际消息定义调整）
-            /*
-            if (message.xian_dj_robotgo1_red_ligher_cmd !== undefined) {
-                document.getElementById('red_light_cmd').textContent = message.xian_dj_robotgo1_red_ligher_cmd;
-            }
-            if (message.xian_dj_robotgo1_green_ligher_cmd !== undefined) {
-                document.getElementById('green_light_cmd').textContent = message.xian_dj_robotgo1_green_ligher_cmd;
-            }
-            if (message.xian_dj_robotgo1_yellow_ligher_cmd !== undefined) {
-                document.getElementById('yellow_light_cmd').textContent = message.xian_dj_robotgo1_yellow_ligher_cmd;
-            }
-            if (message.xian_dj_robotgo1_displayer_cmd !== undefined) {
-                document.getElementById('displayer_cmd1').textContent = message.xian_dj_robotgo1_displayer_cmd;
-                document.getElementById('displayer_cmd2').textContent = message.xian_dj_robotgo1_displayer_cmd;
-            }
-            */
         });
 
         // 处理接收到的本地控制器消息
@@ -611,27 +629,28 @@
             console.log('收到状态显示消息:', message);
             updateLastUpdateTime();
 
+            // 处理状态显示模块的主模式（数值+中文）
             if (message.xian_dj_robotgo1_m_system_mode !== undefined) {
-                document.getElementById('m_system_mode').textContent = message.xian_dj_robotgo1_m_system_mode;
+                const mMode = Number(message.xian_dj_robotgo1_m_system_mode);
+                const validMMode = [0, 1, 2].includes(mMode) ? mMode : 0;
+                document.getElementById('m_system_mode').textContent = getMainModeText(validMMode);
             }
+
+            // 处理状态显示模块的子模式
             if (message.xian_dj_robotgo1_s_system_mode !== undefined) {
-                document.getElementById('s_system_mode').textContent = message.xian_dj_robotgo1_s_system_mode;
+                const sMode = Number(message.xian_dj_robotgo1_s_system_mode);
+                const currentMModeText = document.getElementById('m_system_mode').textContent;
+                // 从主模式文本中提取数值（如"2（六自由度平台控制）" → 2）
+                const currentMMode = Number(currentMModeText.charAt(0));
+                const validSMode = currentMMode === 2 ? ([0, 1].includes(sMode) ? sMode : 0) : 0;
+                document.getElementById('s_system_mode').textContent = getSubModeText(validSMode, currentMMode);
             }
+
             if (message.xian_dj_robotgo1_battery_level !== undefined) {
                 document.getElementById('battery_level').textContent = message.xian_dj_robotgo1_battery_level;
             }
             if (message.xian_dj_robotgo1_display_mode !== undefined) {
                 document.getElementById('display_mode').textContent = message.xian_dj_robotgo1_display_mode;
-            }
-            if (message.xian_dj_robotgo1_error_code !== undefined) {
-                document.getElementById('state_error_code').textContent = message.xian_dj_robotgo1_error_code;
-                // 根据错误码设置颜色
-                var errorCodeElement = document.getElementById('state_error_code');
-                if (message.xian_dj_robotgo1_error_code !== 0) {
-                    errorCodeElement.className = 'param-value error-code-high';
-                } else {
-                    errorCodeElement.className = 'param-value error-code-low';
-                }
             }
         });
 
@@ -646,13 +665,68 @@
             if (message.xian_dj_robotgo1_tele_op_mode !== undefined) {
                 document.getElementById('tele_op_mode').textContent = message.xian_dj_robotgo1_tele_op_mode;
             }
+
+            // 处理模式切换模块的主模式（数值+中文，限制0/1/2）
             if (message.xian_dj_robotgo1_m_system_mode !== undefined) {
-                document.getElementById('switch_m_mode').textContent = message.xian_dj_robotgo1_m_system_mode;
+                const mMode = Number(message.xian_dj_robotgo1_m_system_mode);
+                const validMMode = [0, 1, 2].includes(mMode) ? mMode : 0;
+                document.getElementById('switch_m_mode').textContent = getMainModeText(validMMode);
+
+                // 主模式变化后，同步更新子模式
+                checkAndUpdateSubMode();
             }
+
+            // 处理模式切换模块的子模式
             if (message.xian_dj_robotgo1_s_system_mode !== undefined) {
-                document.getElementById('switch_s_mode').textContent = message.xian_dj_robotgo1_s_system_mode;
+                const sMode = Number(message.xian_dj_robotgo1_s_system_mode);
+                const currentMModeText = document.getElementById('switch_m_mode').textContent;
+                const currentMMode = Number(currentMModeText.charAt(0));
+                const validSMode = currentMMode === 2 ? ([0, 1].includes(sMode) ? sMode : 0) : 0;
+
+                const sModeElement = document.getElementById('switch_s_mode');
+                sModeElement.textContent = getSubModeText(validSMode, currentMMode);
+
+                // 子模式样式标记
+                sModeElement.className = 'param-value';
+                if (currentMMode === 2) {
+                    sModeElement.classList.add([0, 1].includes(validSMode) ? 'submode-valid' : 'submode-invalid');
+                }
             }
         });
+
+        // 校验并更新子模式的辅助函数
+        function checkAndUpdateSubMode() {
+            const currentMModeText = document.getElementById('switch_m_mode').textContent;
+            const currentMMode = Number(currentMModeText.charAt(0));
+            const currentSModeText = document.getElementById('switch_s_mode').textContent;
+            // 从子模式文本中提取数值（如"1（旋转）" → 1）
+            const currentSMode = Number(currentSModeText.charAt(0));
+
+            const validSMode = currentMMode === 2 ? ([0, 1].includes(currentSMode) ? currentSMode : 0) : 0;
+
+            const sModeElement = document.getElementById('switch_s_mode');
+            sModeElement.textContent = getSubModeText(validSMode, currentMMode);
+            sModeElement.className = 'param-value';
+
+            // 仅主模式2时添加样式
+            if (currentMMode === 2) {
+                sModeElement.classList.add([0, 1].includes(validSMode) ? 'submode-valid' : 'submode-invalid');
+            }
+        }
+        function handleAgvBatteryMsg(message) {
+            console.log('收到AGV电池电量消息:', message);
+            updateLastUpdateTime();
+            // std_msgs/String的核心数据在data字段
+            const batteryData = message.data || '--';
+            // 格式化显示（如果是数字则补充%）
+            let batteryDisplay = batteryData;
+            if (!isNaN(Number(batteryData))) {
+                batteryDisplay = `${Number(batteryData)}%`;
+            }
+            document.getElementById('agv_battery_level').textContent = batteryDisplay;
+        }
+        // 首次订阅AGV电池话题
+        agvBatteryTopic.subscribe(handleAgvBatteryMsg);
 
         // 处理接收到的错误监控消息
         errorMonitorListener.subscribe(function (message) {
@@ -660,9 +734,6 @@
             updateLastUpdateTime();
 
             if (message.data !== undefined) {
-                document.getElementById('error_monitor_msg').textContent = message.data;
-
-                // 尝试解析错误信息字符串
                 var errorParts = message.data.split('   ');
                 if (errorParts.length >= 6) {
                     if (errorParts[0] !== undefined) {
@@ -680,9 +751,6 @@
                     if (errorParts[4] !== undefined) {
                         document.getElementById('control_error').textContent = errorParts[4] === '0' ? "正常" : "故障";
                     }
-                    // if (errorParts[5] !== undefined) {
-                    //   document.getElementById('lighter_displayer_error').textContent = errorParts[5];
-                    // }
                 }
             }
         });
